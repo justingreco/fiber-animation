@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+    <style type="text/css">
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+    <script>
+        var j = 0, f = 0, fiber, latlng, feature, coord, polyline;
+
+        function tick () {
+            polyline.addLatLng(coord[j].reverse());
+
+            if (++j < coord.length) {setTimeout(tick, 30);}
+            else{
+                j=0;
+                f += 1;
+                polyline = L.polyline([], {color: 'red'}).addTo(map);
+
+                coord = feature.coordinates[f];
+                tick();}
+        }
+        function draw () {
+            polyline = L.polyline([], {color: 'red'}).addTo(map);
+
+            feature = fiber.getLayers()[0].feature.geometry;
+            coord = feature.coordinates[f];
+            tick ();
+
+        }
+        $(document).ready(function () {
+            map = L.map('map').setView([35.7769, -78.6436],12);
+            L.tileLayer('https://{s}.tiles.mapbox.com/v3/examples.map-vyofok3q/{z}/{x}/{y}.png',{attribution: 'Map data OpenStreetMap contributors'}).addTo(map);
+            $.getJSON('geometry.json', function(json, textStatus) {
+                fiber = L.geoJson(json , {
+                    style: function (feature) {
+                        var name = feature.properties.name;
+                        var color = "#FF0000";
+                        return { weight: 3, opacity: 1, color: color, fillColor: color, clickable: true };
+                    }/*,
+                    onEachFeature: function (feature) {
+                        current = feature;
+                        polyline = L.polyline([], {color: 'red'}).addTo(map);
+                        tick();
+                    }*/
+                });//.addTo(map);
+                draw();
+            });
+        });
+    </script>
+  </body>
+</html>
